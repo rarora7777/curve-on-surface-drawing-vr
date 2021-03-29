@@ -1,2 +1,4 @@
-# curve-on-surface-drawing-vr
+# Mid-Air Drawing of Curves on Surfaces in Virtual Reality
 Source code and study data for the TOG 2021 paper: Mid-Air Drawing of Curves on Surfaces in Virtual Reality.
+
+Available soon (by May 2021).
