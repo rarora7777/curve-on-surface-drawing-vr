@@ -3,4 +3,4 @@ Source code and study data for the TOG 2021 paper: Mid-Air Drawing of Curves on 
 
 Available soon (by Sep 2021).
 
-Pre-processing code (MATLAB) and C++ source for the Phong protection DLL are available at https://github.com/rarora7777/smooth-closest-point. 
+Pre-processing code (MATLAB) and C++ source for the Phong projection DLL are available at https://github.com/rarora7777/smooth-closest-point. 
