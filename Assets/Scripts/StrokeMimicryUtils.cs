@@ -6,6 +6,38 @@ using System.Linq;
 
 namespace StrokeMimicry
 {
+    public enum ProjectionMode
+    {
+        Spraypaint = 0,
+        MimicryPhong = 1,
+        MimicryClosest = 2
+    }
+
+    public enum InteractionMode
+    {
+        Drawing,
+        Erasing
+    }
+
+    public enum ClosestPointMethod
+    {
+        Vanilla,
+        Phong
+    }
+
+    public enum ControllerHand
+    {
+        Left,
+        Right
+    }
+
+    public enum Input
+    {
+        Pen,
+        Action,
+        Toggle
+    }
+
     public static class StrokeMimicryUtils
     {
         public static Vector3 ChangeHandedness(Vector3 v)
@@ -86,7 +118,7 @@ namespace ExtensionMethods
 {
     public static class CustomExtensions
     {
-        public static Vector3d GetLeftHandedTriNormal(this g3.DMesh3 mesh, int tidx)
+        public static Vector3d GetTriNormalLeftHanded(this g3.DMesh3 mesh, int tidx)
         {
             return -mesh.GetTriNormal(tidx);
         }

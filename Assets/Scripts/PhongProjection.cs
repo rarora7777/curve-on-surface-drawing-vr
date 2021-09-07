@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -117,8 +116,8 @@ namespace StrokeMimicry
         Tri[] FF;
         const int dim = 8;
 
-        public string ModelName;
-        public bool LoadInsideOffsetSurface;
+        private string modelName;
+        private bool loadInsideOffsetSurface;
 
         DMeshAABBTree3 outMeshTree = null, inMeshTree = null;
         PointAABBTree3 tetCenterTree = null;
@@ -130,27 +129,22 @@ namespace StrokeMimicry
         static int _stats_totalCallsToBary = 0;
         static int _stats_nearestNeighbourBary = 0, _stats_oneRingBary = 0, _stats_bruteForceBary = 0;
 
-        StrokeMimicrySettings settings;
-
-        public void Init()
+        public PhongProjection(string name, bool loadInsideSurface)
         {
-            settings = GameObject.FindObjectOfType<StrokeMimicrySettings>();
-            if (settings is null)
-            {
-                Debug.LogError("Cannot find stroke mimicry settings!");
-                return;
-            }
-
+            modelName = name;
+            loadInsideOffsetSurface = loadInsideSurface;
             Stopwatch totalWatch = new Stopwatch();
-            totalWatch.Start();
 
-            string tetMeshFile = Path.Combine(Application.streamingAssetsPath, ModelName + "_tet.txt");
-            string triMeshFile = Path.Combine(Application.streamingAssetsPath, ModelName + "_tri.txt");
-            string outMeshFile = Path.Combine(Application.streamingAssetsPath, ModelName + "_out.obj");
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+                totalWatch.Start();
+
+            string tetMeshFile = Path.Combine(Application.streamingAssetsPath, modelName + "_tet.txt");
+            string triMeshFile = Path.Combine(Application.streamingAssetsPath, modelName + "_tri.txt");
+            string outMeshFile = Path.Combine(Application.streamingAssetsPath, modelName + "_out.obj");
 
             string inMeshFile =
-                LoadInsideOffsetSurface ?
-                    Path.Combine(Application.streamingAssetsPath, ModelName + "_in.obj") :
+                loadInsideOffsetSurface ?
+                    Path.Combine(Application.streamingAssetsPath, modelName + "_in.obj") :
                     "";
 
             _stats_totalCallsToBary = 0;
@@ -169,21 +163,40 @@ namespace StrokeMimicry
 
             _triTetLoadMarker.Begin();
             Stopwatch triTetMeshWatch = new Stopwatch();
-            triTetMeshWatch.Start();
-            Debug.Log("Loading tet mesh...");
+            
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                triTetMeshWatch.Start();
+                Debug.Log("Loading tet mesh...");
+            }
+
             bool tetRes = LoadTetMesh(tetMeshFile);
             Debug.Assert(tetRes);
-            Debug.Log("Loading tri mesh...");
+            
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                Debug.Log("Loading tri mesh...");
+            }
+            
             bool triRes = LoadTriMesh(triMeshFile);
             Debug.Assert(triRes);
-            triTetMeshWatch.Stop();
+
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                triTetMeshWatch.Stop();
+            }
+
             _triTetLoadMarker.End();
 
-            Debug.Log("Loading offset surfaces...");
             _offsetLoadMarker.Begin();
             Stopwatch inOffsetWatch = new Stopwatch();
-            inOffsetWatch.Start();
-            if (LoadInsideOffsetSurface)
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                Debug.Log("Loading offset surfaces...");
+                inOffsetWatch.Start();
+            }
+
+            if (loadInsideOffsetSurface)
             {
                 StandardMeshReader inMeshReader = new StandardMeshReader();
                 inMeshReader.MeshBuilder = new DMesh3Builder();
@@ -193,10 +206,14 @@ namespace StrokeMimicry
                 inMeshTree = new DMeshAABBTree3(inMesh, true);
                 inMeshTree.FastWindingNumber(Vector3d.Zero);
             }
-            inOffsetWatch.Stop();
+
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+                inOffsetWatch.Stop();
 
             Stopwatch outOffsetWatch = new Stopwatch();
-            outOffsetWatch.Start();
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+                outOffsetWatch.Start();
+
             StandardMeshReader outMeshReader = new StandardMeshReader();
             outMeshReader.MeshBuilder = new DMesh3Builder();
             var outMeshReadResult = outMeshReader.Read(outMeshFile, new ReadOptions());
@@ -204,8 +221,11 @@ namespace StrokeMimicry
             outMesh = ((g3.DMesh3Builder)outMeshReader.MeshBuilder).Meshes[0];
             outMeshTree = new DMeshAABBTree3(outMesh, true);
             outMeshTree.FastWindingNumber(Vector3d.Zero);
-            outOffsetWatch.Stop();
+
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+                outOffsetWatch.Stop();
             _offsetLoadMarker.End();
+
             Debug.Assert(outMesh != null, "Unable to read the outer offset surface!");
 
 
@@ -222,23 +242,34 @@ namespace StrokeMimicry
                 for (int j = 0; j < 3; ++j)
                     triangles[j * FF.Length + i] = FF[i].idx[j];
 
-            Debug.Log("Creating phong object...");
             Stopwatch phongCreateWatch = new Stopwatch();
-            phongCreateWatch.Start();
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                Debug.Log("Creating phong object...");
+                phongCreateWatch.Start();
+            }
+
             phong = createPhongObject(
                 vertices, (int)FV.Length, dim,
                 triangles, (int)FF.Length);
-            phongCreateWatch.Stop();
+
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                phongCreateWatch.Stop();
+            }
             _phongCreateMarker.End();
 
-            totalWatch.Stop();
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                totalWatch.Stop();
 
-            Debug.Log("Total initialization time: " + totalWatch.Elapsed.TotalSeconds);
-            Debug.Log("Tri and tet mesh load time: " + triTetMeshWatch.Elapsed.TotalSeconds);
-            Debug.Log("in-offset surface load time: " + inOffsetWatch.Elapsed.TotalSeconds);
-            Debug.Log("out-offset surface load time: " + outOffsetWatch.Elapsed.TotalSeconds);
-            Debug.Log("Phong Object creation time: " + phongCreateWatch.Elapsed.TotalSeconds +
-                "( of which C++ time: " + getInitTime(phong) + ")");
+                Debug.Log("Total initialization time: " + totalWatch.Elapsed.TotalSeconds);
+                Debug.Log("Tri and tet mesh load time: " + triTetMeshWatch.Elapsed.TotalSeconds);
+                Debug.Log("in-offset surface load time: " + inOffsetWatch.Elapsed.TotalSeconds);
+                Debug.Log("out-offset surface load time: " + outOffsetWatch.Elapsed.TotalSeconds);
+                Debug.Log("Phong Object creation time: " + phongCreateWatch.Elapsed.TotalSeconds +
+                    "( of which C++ time: " + getInitTime(phong) + ")");
+            }
 
             //Vector3 dbgPt, dbgProjPt;
             //dbgPt = new Vector3(0.06455f, 0.58133f, 0.18225f);
@@ -266,11 +297,14 @@ namespace StrokeMimicry
             if (phong != IntPtr.Zero)
                 deletePhongObject(phong);
 
-            Debug.Log(_stats_totalCallsToBary.ToString() + " total calls to findBary()");
-            Debug.Log(
-                "NN: " + (100f * _stats_nearestNeighbourBary / _stats_totalCallsToBary).ToString("F2") + "%, " +
-                "1R: " + (100f * _stats_oneRingBary / _stats_totalCallsToBary).ToString("F2") + "%, " +
-                "BF: " + (100f * _stats_bruteForceBary / _stats_totalCallsToBary).ToString("F2") + "%");
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            {
+                Debug.Log(_stats_totalCallsToBary.ToString() + " total calls to findBary()");
+                Debug.Log(
+                    "NN: " + (100f * _stats_nearestNeighbourBary / _stats_totalCallsToBary).ToString("F2") + "%, " +
+                    "1R: " + (100f * _stats_oneRingBary / _stats_totalCallsToBary).ToString("F2") + "%, " +
+                    "BF: " + (100f * _stats_bruteForceBary / _stats_totalCallsToBary).ToString("F2") + "%");
+            }
         }
 
         // NOTE: You might want to convert your input point as well as the output of this function
@@ -281,11 +315,11 @@ namespace StrokeMimicry
             out Vector3 projection,
             out int triID,
             out float[] triBary,
-            bool printVerboseDebugInfo = false,
+            bool logVerboseDebugInfo = false,
             bool useBruteForce = true)
         {
             triBary = new float[3];
-            if (printVerboseDebugInfo)
+            if (logVerboseDebugInfo)
                 Debug.Log("Input point: " + point3D.ToString("F5"));
 
             projection = new Vector3();
@@ -305,14 +339,14 @@ namespace StrokeMimicry
             // point3D should be INSIDE the outer offset surf, and OUTSIDE the inner offset surf.
             if (outWindingNumber < 0.5 || inWindingNumber > 0.5)
             {
-                if (printVerboseDebugInfo)
+                if (logVerboseDebugInfo)
                     Debug.Log("Point is outside the tet volume! Winding #s: Out " + outWindingNumber.ToString() + " In " + inWindingNumber.ToString());
                 return PhongProjectionResult.OutsideTetVolume;
             }
 
-            findBary(point3D, out tetId, out bary, printVerboseDebugInfo);
+            findBary(point3D, out tetId, out bary, logVerboseDebugInfo);
 
-            if (printVerboseDebugInfo)
+            if (logVerboseDebugInfo)
             {
                 Debug.Log("Tet: " + tetId.ToString());
                 Debug.Log("Bary: " + String.Join(" ", Array.ConvertAll<float, String>(bary, Convert.ToString)));
@@ -320,7 +354,7 @@ namespace StrokeMimicry
 
             if (tetId >= 0)
             {
-                if (printVerboseDebugInfo)
+                if (logVerboseDebugInfo)
                 {
                     Vector3 pointRecon =
                         TV3D[TT[tetId].idx[0]] * bary[0] +
@@ -336,7 +370,7 @@ namespace StrokeMimicry
                     TV[TT[tetId].idx[2]] * bary[2] +
                     TV[TT[tetId].idx[3]] * bary[3];
 
-                if (printVerboseDebugInfo)
+                if (logVerboseDebugInfo)
                     Debug.Log("8D point: " + String.Join(" ", Array.ConvertAll<double, String>(point.ToDouble(), Convert.ToString)));
 
                 float[] w = new float[4];
@@ -355,7 +389,7 @@ namespace StrokeMimicry
 
                 oldFid = triID;
 
-                if (printVerboseDebugInfo)
+                if (logVerboseDebugInfo)
                 {
                     Debug.Log("Tri: " + triID.ToString());
                     Debug.Log("Bary: " + String.Join(" ", Array.ConvertAll<float, String>(triBary, Convert.ToString)));
@@ -367,7 +401,7 @@ namespace StrokeMimicry
                         FV3D[FF[triID].idx[0]] * triBary[0] +
                         FV3D[FF[triID].idx[1]] * triBary[1] +
                         FV3D[FF[triID].idx[2]] * triBary[2];
-                    if (printVerboseDebugInfo)
+                    if (logVerboseDebugInfo)
                         Debug.Log("Projected point: " + projection.ToString("F5"));
 
                     return PhongProjectionResult.Success;
@@ -471,7 +505,7 @@ namespace StrokeMimicry
                 count = count + 1;
             }
 
-            tetCenterTree = new PointAABBTree3(new Globals.PointSet(tetCenters));
+            tetCenterTree = new PointAABBTree3(new StrokeMimicryUtils.PointSet(tetCenters));
 
             if (count != TT.Length)
                 return false;
@@ -560,7 +594,7 @@ namespace StrokeMimicry
          * 3. If not, fall back to brute force search over all tets. This logs 
          * a debug message.
          */
-        void findBary(Vector3 p, out int tetId, out float[] bary, bool printDebugInfo = false)
+        void findBary(Vector3 p, out int tetId, out float[] bary, bool logVerboseDebugInfo = false)
         {
             _stats_totalCallsToBary++;
             // lambda to check if a barycentric coordinate is valid (all elements ∈ [0, 1])
@@ -575,12 +609,12 @@ namespace StrokeMimicry
             var nearestTetId = tetCenterTree.FindNearestPoint(p);
             var curBary = findBaryInTet(p, nearestTetId);
 
-            if (printDebugInfo)
+            if (logVerboseDebugInfo)
                 Debug.Log("Nearest Tet: " + nearestTetId.ToString());
 
             if (isBaryValid(curBary))
             {
-                if (printDebugInfo)
+                if (logVerboseDebugInfo)
                     Debug.Log("Nearest tet contains the point!");
 
                 bary = baryFromVec3(curBary);
@@ -601,7 +635,7 @@ namespace StrokeMimicry
                 curBary = findBaryInTet(p, idx);
                 if (isBaryValid(curBary))
                 {
-                    if (printDebugInfo)
+                    if (logVerboseDebugInfo)
                         Debug.Log("1-ring contains the point!");
 
                     bary = baryFromVec3(curBary);
@@ -611,7 +645,8 @@ namespace StrokeMimicry
                 }
             }
 
-            Debug.Log("Falling back to brute-force search!");
+            if (StrokeMimicryManager.Instance.LogDebugInfo)
+                Debug.Log("Falling back to brute-force search!");
 
             // If both fail, fall back a brute-force search
             for (int i = 0; i < TT.Length; ++i)
