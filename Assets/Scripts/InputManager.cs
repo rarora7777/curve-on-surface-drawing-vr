@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
@@ -88,21 +88,19 @@ namespace StrokeMimicry
             {
                 Projection.TryFinishStroke();
             }
+
+            Projection.UpdateProjectionPointer();
         }
 
         public static void Erase()
         {
-
+            throw new NotImplementedException();
         }
 
-        public static void Awake()
-        {
-            
-        }
-
+        
         public static void OnEnable()
         {
-            List<InputDevice> allDevices = new();
+            List<InputDevice> allDevices = new List<InputDevice>();
             var deviceCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller;
             InputDevices.GetDevicesWithCharacteristics(deviceCharacteristics, allDevices);
 

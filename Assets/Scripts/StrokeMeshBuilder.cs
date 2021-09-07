@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace StrokeMimicry
 {
-    public class StrokeMesh
+    public class StrokeMeshBuilder
     {
         private readonly float strokeWidth = 0.0015f;
         public readonly ProjectionMode ProjMode;
@@ -15,7 +15,7 @@ namespace StrokeMimicry
         public readonly Stroke ParentStroke;
 
         // Use this for initialization
-        public StrokeMesh(Stroke parent)
+        public StrokeMeshBuilder(Stroke parent)
         {
             ParentStroke = parent;
             mf = parent.GetComponent<MeshFilter>();

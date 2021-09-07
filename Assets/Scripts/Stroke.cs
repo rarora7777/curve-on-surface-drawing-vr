@@ -12,7 +12,7 @@ namespace StrokeMimicry
         
         public Matrix4x4 ModelMatrix = Matrix4x4.identity;
 
-        private StrokeMesh Mesh;
+        private StrokeMeshBuilder MeshBuilder;
 
         public int PointCount { get { return Points.Count; } }
 
@@ -22,7 +22,7 @@ namespace StrokeMimicry
             HitInfoFrames = new List<HitInfo>();
             ProjMode = mode;
             ModelMatrix = modelMat;
-            Mesh = new StrokeMesh(this);
+            MeshBuilder = new StrokeMeshBuilder(this);
         }
 
         public bool TryDrawPoint(HitInfo hitInfo)
@@ -35,7 +35,7 @@ namespace StrokeMimicry
             else
             {
                 AddPointAndHitInfo(hitInfo);
-                Mesh.DrawNewStrokeSegment();
+                MeshBuilder.DrawNewStrokeSegment();
                 drawn = true;
             }
 
@@ -46,8 +46,9 @@ namespace StrokeMimicry
         public void Finish()
         {
             Debug.Assert(Points.Count == HitInfoFrames.Count);
+            MeshBuilder.Finish();
+
             Projection.CurrentStroke = null;
-            Mesh.Finish();
         }
 
         public void AddPointAndHitInfo(HitInfo hit)

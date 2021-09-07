@@ -96,6 +96,8 @@ namespace StrokeMimicry
 
         private static DataFrame CurrentDataFrame = null;
         private static Ray SprayRay;
+        private static HitInfo CurrentHit;
+        private static Ray CurrentRay;
 
         public static void Update()
         {
@@ -119,6 +121,10 @@ namespace StrokeMimicry
                 penTipGlobalPosition,
                 rotation * PenObject.SprayDirection
             );
+
+            CurrentRay = SprayRay;
+
+            _Raycast(CurrentRay, out CurrentHit);
         }
 
         public static void TryCreateNewStroke()
@@ -352,17 +358,19 @@ namespace StrokeMimicry
                     break;
             }
 
-            UpdateProjectionPointer(hit, ray);
-
+            CurrentRay = ray;
+            CurrentHit = hit;
 
             CurrentStroke.TryDrawPoint(hit);
         }
 
-        private static void UpdateProjectionPointer(HitInfo hit, Ray ray)
+        public static void UpdateProjectionPointer()
         {
             throw new NotImplementedException();
 
-            // This logic belongs to the ProjectionPointer class. We should have a single object that handles both the pointer and laser logic. Pointer should only appear when hit is successful.
+            // This logic belongs to the ProjectionPointer class.
+            // We should have a single object that handles both the pointer and laser logic.
+            // Pointer should only appear when CurrentHit is successful.
             //if (hit.Success == false)
             //{
             //    ProjectionPointer.transform.position =
