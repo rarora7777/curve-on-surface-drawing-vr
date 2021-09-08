@@ -83,9 +83,15 @@ namespace StrokeMimicry
         private static void ToggleButtonHandler(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
         {
             if (StrokeMimicryManager.Instance.CurrentInteractionMode == InteractionMode.Drawing)
+            {
                 StrokeMimicryManager.Instance.CurrentInteractionMode = InteractionMode.Erasing;
+            }
             else
+            {
                 StrokeMimicryManager.Instance.CurrentInteractionMode = InteractionMode.Drawing;
+            }
+
+            Projection.TogglePenUI(StrokeMimicryManager.Instance.CurrentInteractionMode);
         }
 
         
@@ -120,12 +126,12 @@ namespace StrokeMimicry
                 ActionButtonJustReleased = false;
             }
 
-            Projection.UpdateProjectionPointer();
+            Projection.UpdateProjectionPointerAndLaser();
         }
 
         public static void Erase()
         {
-            throw new NotImplementedException();
+            // Handled via Stroke.OnTriggerStay()
         }
     }
 }

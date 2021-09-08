@@ -21,29 +21,40 @@ namespace StrokeMimicry
         [Tooltip("Path to the folder containing the MATLAB-generated files required for Phong projection.")]
         public string PhongFilesPath = Application.streamingAssetsPath;
 
-        [Tooltip("Set the projection mode here.")]
+        [Tooltip("The projection mode.")]
         public ProjectionMode ProjectionMode = ProjectionMode.MimicryClosest;
 
-        [Tooltip("Set the button the user presses to draw or erase strokes.")]
+        [Tooltip("The button the user presses to draw or erase strokes.")]
         public InputFeatureUsage<bool> ActionButton = CommonUsages.triggerButton;
 
         //[Tooltip("Set the preferred hand for draw/erase button.")]
         //public ControllerHand ActionButtonHand = ControllerHand.Right;
 
-        [Tooltip("Set the button the user presses to toggle between drawing and erasing modes.")]
+        [Tooltip("The button the user presses to toggle between drawing and erasing modes.")]
         public InputFeatureUsage<bool> ToggleButton = CommonUsages.primaryButton;
 
         //[Tooltip("Set the preferred hand for toggle button.")]
         //public ControllerHand ToggleButtonHand = ControllerHand.Right;
 
-        [Tooltip("Set the preferred drawing hand.")]
+        [Tooltip("The preferred drawing hand.")]
         public ControllerHand PenHand = ControllerHand.Right;
 
-        public Vector3 PenTipLocalPosition = new Vector3(0f, -0.01f, -0.02f);
+        [Tooltip("Position of the pen tip in the controller's local coordinate system.")]
+        public Vector3 PenTipLocalPosition = new Vector3(-0.02f, -0.01f, -0.01f);
 
-        public Vector3 PenSprayLocalDirection = new Vector3(0f, 0f, 1f);
+        public Vector3 PenSprayLocalDirection = new Vector3(0f, 1f, 0f);
 
+        [Tooltip("Material for stroke meshes.")]
         public Material StrokeMaterial;
+
+        [Tooltip("Material for projection pointer.")]
+        public Material PointerMaterial;
+
+        [Tooltip("Material for projection laser.")]
+        public Material LaserMaterial;
+
+        [Tooltip("Material for eraser.")]
+        public Material EraserMaterial;
 
         public DateTime StartTime { get; private set; }
 

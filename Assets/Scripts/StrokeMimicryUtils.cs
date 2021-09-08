@@ -31,13 +31,6 @@ namespace StrokeMimicry
         Right
     }
 
-    public enum Input
-    {
-        Pen,
-        Action,
-        Toggle
-    }
-
     public static class StrokeMimicryUtils
     {
         public static Vector3 ChangeHandedness(Vector3 v)

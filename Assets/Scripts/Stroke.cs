@@ -58,5 +58,14 @@ namespace StrokeMimicry
             HitInfoFrames.Add(new HitInfo(hit));
             Points.Add(hit.Point);
         }
+
+        private void OnTriggerStay(Collider other)
+        {
+            if (other.transform.parent == Projection.PenObject.transform &&
+                StrokeMimicryManager.Instance.CurrentInteractionMode == InteractionMode.Erasing && InputManager.ActionButtonPressed)
+            {
+                Destroy(gameObject);
+            }
+        }
     }
 }

@@ -338,7 +338,9 @@ namespace StrokeMimicry
                         // This might actually work better for sharp edges
 
                         hit = _ClosestHitVanilla(lastPointDrawn + delta);
-                        ray = new Ray(penTipGlobalPosition, hit.Point - penTipGlobalPosition);
+                        ray = new Ray(
+                            penTipGlobalPosition, 
+                            Target.TargetTransform.TransformPoint(hit.Point) - penTipGlobalPosition);
                         break;
                     }
                 // anchored smooth closest-point
@@ -355,12 +357,16 @@ namespace StrokeMimicry
                         // Perform the projection using [Panozzo 2013] to estimate the projection on the ideal smooth
                         // surface encoded by the mesh M
                         hit = _ClosestHitPhong(lastPointDrawn + delta);
-                        ray = new Ray(penTipGlobalPosition, hit.Point - penTipGlobalPosition);
+                        ray = new Ray(
+                            penTipGlobalPosition,
+                            Target.TargetTransform.TransformPoint(hit.Point) - penTipGlobalPosition);
                         break;
                     }
                 default:
                     hit = new HitInfo(CurrentDataFrame, Target.TargetTransform);
-                    ray = new Ray(penTipGlobalPosition, hit.Point - penTipGlobalPosition);
+                    ray = new Ray(
+                        penTipGlobalPosition,
+                        Target.TargetTransform.TransformPoint(hit.Point) - penTipGlobalPosition);
                     break;
             }
 
@@ -372,26 +378,14 @@ namespace StrokeMimicry
             Debug.Log("Point: " + hit.Point);
         }
 
-        public static void UpdateProjectionPointer()
+        public static void UpdateProjectionPointerAndLaser()
         {
-            //throw new NotImplementedException();
+            PenObject.UpdatePointerAndLaser(CurrentRay, CurrentHit, Target.TargetTransform);
+        }
 
-            // This logic belongs to the ProjectionPointer class.
-            // We should have a single object that handles both the pointer and laser logic.
-            // Pointer should only appear when CurrentHit is successful.
-            //if (hit.Success == false)
-            //{
-            //    ProjectionPointer.transform.position =
-            //        ray.origin + 10.0f * ray.direction;
-            //    ProjectionPointer.transform.up = -ray.direction;
-            //}
-            //else
-            //{
-            //    ProjectionPointer.transform.position =
-            //        transform.TransformPoint(hit.Point);
-            //    ProjectionPointer.transform.up =
-            //    transform.TransformDirection(hit.Normal);
-            //}
+        public static void TogglePenUI(InteractionMode newMode)
+        {
+            PenObject.ToggleUI(newMode);
         }
 
     }
