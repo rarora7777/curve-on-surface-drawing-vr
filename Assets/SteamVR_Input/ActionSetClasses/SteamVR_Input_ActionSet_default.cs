@@ -17,14 +17,6 @@ namespace Valve.VR
     public class SteamVR_Input_ActionSet_default : Valve.VR.SteamVR_ActionSet
     {
         
-        public virtual SteamVR_Action_Pose ControllerPose
-        {
-            get
-            {
-                return SteamVR_Actions.default_ControllerPose;
-            }
-        }
-        
         public virtual SteamVR_Action_Boolean DrawEraseToggle
         {
             get
@@ -38,6 +30,14 @@ namespace Valve.VR
             get
             {
                 return SteamVR_Actions.default_DrawEraseAction;
+            }
+        }
+        
+        public virtual SteamVR_Action_Pose ControllerPose
+        {
+            get
+            {
+                return SteamVR_Actions.default_ControllerPose;
             }
         }
     }

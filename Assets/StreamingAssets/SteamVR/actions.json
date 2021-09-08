@@ -1,11 +1,6 @@
 {
   "actions": [
     {
-      "name": "/actions/default/in/ControllerPose",
-      "type": "pose",
-      "requirement": "mandatory"
-    },
-    {
       "name": "/actions/default/in/DrawEraseToggle",
       "type": "boolean",
       "requirement": "mandatory"
@@ -14,6 +9,11 @@
       "name": "/actions/default/in/DrawEraseAction",
       "type": "boolean",
       "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/default/in/ControllerPose",
+      "type": "pose",
+      "requirement": "optional"
     },
     {
       "name": "/actions/platformer/in/Move",

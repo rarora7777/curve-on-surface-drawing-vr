@@ -17,11 +17,11 @@ namespace Valve.VR
     public partial class SteamVR_Actions
     {
         
-        private static SteamVR_Action_Pose p_default_ControllerPose;
-        
         private static SteamVR_Action_Boolean p_default_DrawEraseToggle;
         
         private static SteamVR_Action_Boolean p_default_DrawEraseAction;
+        
+        private static SteamVR_Action_Pose p_default_ControllerPose;
         
         private static SteamVR_Action_Vector2 p_platformer_Move;
         
@@ -37,14 +37,6 @@ namespace Valve.VR
         
         private static SteamVR_Action_Pose p_mixedreality_ExternalCamera;
         
-        public static SteamVR_Action_Pose default_ControllerPose
-        {
-            get
-            {
-                return SteamVR_Actions.p_default_ControllerPose.GetCopy<SteamVR_Action_Pose>();
-            }
-        }
-        
         public static SteamVR_Action_Boolean default_DrawEraseToggle
         {
             get
@@ -58,6 +50,14 @@ namespace Valve.VR
             get
             {
                 return SteamVR_Actions.p_default_DrawEraseAction.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
+        public static SteamVR_Action_Pose default_ControllerPose
+        {
+            get
+            {
+                return SteamVR_Actions.p_default_ControllerPose.GetCopy<SteamVR_Action_Pose>();
             }
         }
         
@@ -120,9 +120,9 @@ namespace Valve.VR
         private static void InitializeActionArrays()
         {
             Valve.VR.SteamVR_Input.actions = new Valve.VR.SteamVR_Action[] {
-                    SteamVR_Actions.default_ControllerPose,
                     SteamVR_Actions.default_DrawEraseToggle,
                     SteamVR_Actions.default_DrawEraseAction,
+                    SteamVR_Actions.default_ControllerPose,
                     SteamVR_Actions.platformer_Move,
                     SteamVR_Actions.platformer_Jump,
                     SteamVR_Actions.buggy_Steering,
@@ -131,9 +131,9 @@ namespace Valve.VR
                     SteamVR_Actions.buggy_Reset,
                     SteamVR_Actions.mixedreality_ExternalCamera};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
-                    SteamVR_Actions.default_ControllerPose,
                     SteamVR_Actions.default_DrawEraseToggle,
                     SteamVR_Actions.default_DrawEraseAction,
+                    SteamVR_Actions.default_ControllerPose,
                     SteamVR_Actions.platformer_Move,
                     SteamVR_Actions.platformer_Jump,
                     SteamVR_Actions.buggy_Steering,
@@ -172,9 +172,9 @@ namespace Valve.VR
         
         private static void PreInitActions()
         {
-            SteamVR_Actions.p_default_ControllerPose = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/default/in/ControllerPose")));
             SteamVR_Actions.p_default_DrawEraseToggle = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/DrawEraseToggle")));
             SteamVR_Actions.p_default_DrawEraseAction = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/DrawEraseAction")));
+            SteamVR_Actions.p_default_ControllerPose = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/default/in/ControllerPose")));
             SteamVR_Actions.p_platformer_Move = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/platformer/in/Move")));
             SteamVR_Actions.p_platformer_Jump = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/platformer/in/Jump")));
             SteamVR_Actions.p_buggy_Steering = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/buggy/in/Steering")));
