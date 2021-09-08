@@ -13,7 +13,7 @@
     {
       "name": "/actions/default/in/ControllerPose",
       "type": "pose",
-      "requirement": "optional"
+      "requirement": "mandatory"
     },
     {
       "name": "/actions/platformer/in/Move",

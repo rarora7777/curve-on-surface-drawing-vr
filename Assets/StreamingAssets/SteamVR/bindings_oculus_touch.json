@@ -2,128 +2,162 @@
   "bindings": {
     "/actions/buggy": {
       "chords": [],
-      "poses": [],
       "haptics": [],
+      "poses": [],
+      "skeleton": [],
       "sources": [
         {
-          "path": "/user/hand/left/input/trigger",
-          "mode": "trigger",
-          "parameters": {},
           "inputs": {
             "pull": {
               "output": "/actions/buggy/in/throttle"
             }
-          }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/left/input/trigger"
         },
         {
-          "path": "/user/hand/right/input/trigger",
-          "mode": "trigger",
-          "parameters": {},
           "inputs": {
             "pull": {
               "output": "/actions/buggy/in/throttle"
             }
-          }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/right/input/trigger"
         },
         {
-          "path": "/user/hand/left/input/joystick",
-          "mode": "joystick",
-          "parameters": {},
           "inputs": {
             "position": {
               "output": "/actions/buggy/in/steering"
             }
-          }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/left/input/joystick"
         },
         {
-          "path": "/user/hand/right/input/joystick",
-          "mode": "joystick",
-          "parameters": {},
           "inputs": {
             "position": {
               "output": "/actions/buggy/in/steering"
             }
-          }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/right/input/joystick"
         },
         {
-          "path": "/user/hand/left/input/x",
-          "mode": "button",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/buggy/in/brake"
             }
-          }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/x"
         },
         {
-          "path": "/user/hand/right/input/x",
-          "mode": "button",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/buggy/in/brake"
             }
-          }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/x"
         },
         {
-          "path": "/user/hand/left/input/y",
-          "mode": "button",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/buggy/in/reset"
             }
-          }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/y"
         },
         {
-          "path": "/user/hand/right/input/y",
-          "mode": "button",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/buggy/in/reset"
             }
-          }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/y"
         },
         {
-          "path": "/user/hand/right/input/a",
-          "mode": "button",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/buggy/in/brake"
             }
-          }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/a"
         },
         {
-          "path": "/user/hand/right/input/b",
-          "mode": "button",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/buggy/in/reset"
             }
-          }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/b"
         }
-      ],
-      "skeleton": []
+      ]
     },
     "/actions/default": {
       "chords": [],
-      "poses": [],
       "haptics": [],
-      "sources": [],
-      "skeleton": []
+      "poses": [
+        {
+          "output": "/actions/default/in/controllerpose",
+          "path": "/user/hand/left/pose/tip"
+        },
+        {
+          "output": "/actions/default/in/controllerpose",
+          "path": "/user/hand/right/pose/tip"
+        }
+      ],
+      "skeleton": [],
+      "sources": [
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/default/in/drawerasetoggle"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/x"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/default/in/drawerasetoggle"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/a"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/default/in/draweraseaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/trigger"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/default/in/draweraseaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/trigger"
+        }
+      ]
     },
     "/actions/platformer": {
       "chords": [],
-      "poses": [],
       "haptics": [],
+      "poses": [],
+      "skeleton": [],
       "sources": [
         {
-          "path": "/user/hand/left/input/joystick",
-          "mode": "joystick",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/platformer/in/jump"
@@ -131,12 +165,11 @@
             "position": {
               "output": "/actions/platformer/in/move"
             }
-          }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/left/input/joystick"
         },
         {
-          "path": "/user/hand/right/input/joystick",
-          "mode": "joystick",
-          "parameters": {},
           "inputs": {
             "click": {
               "output": "/actions/platformer/in/jump"
@@ -144,10 +177,11 @@
             "position": {
               "output": "/actions/platformer/in/move"
             }
-          }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/right/input/joystick"
         }
-      ],
-      "skeleton": []
+      ]
     }
   },
   "controller_type": "oculus_touch",
