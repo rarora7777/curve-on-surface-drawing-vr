@@ -77,9 +77,9 @@ namespace StrokeMimicry
             var previousPoint = ParentStroke.Points[PointCount - 2];
             Vector3 normal = ParentStroke.HitInfoFrames[PointCount - 1].Normal;
 
-            latestPoint = ParentStroke.transform.TransformPoint(latestPoint);
-            previousPoint = ParentStroke.transform.TransformPoint(previousPoint);
-            normal = ParentStroke.transform.TransformDirection(normal);
+            //latestPoint = ParentStroke.transform.TransformPoint(latestPoint);
+            //previousPoint = ParentStroke.transform.TransformPoint(previousPoint);
+            //normal = ParentStroke.transform.TransformDirection(normal);
 
             Vector3 binormal = Vector3.Cross(
                 latestPoint - previousPoint,

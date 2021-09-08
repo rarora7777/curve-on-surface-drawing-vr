@@ -19,6 +19,7 @@ namespace StrokeMimicry
                 Phong = new PhongProjection(Name, LoadInsideOffsetSurface);
             
             MeshFilter mf = GetTargetComponent<MeshFilter>();
+            targetTransform = mf.transform;
             Projection.Target = this;
         }
 

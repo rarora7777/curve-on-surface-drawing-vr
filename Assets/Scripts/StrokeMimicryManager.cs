@@ -27,17 +27,23 @@ namespace StrokeMimicry
         [Tooltip("Set the button the user presses to draw or erase strokes.")]
         public InputFeatureUsage<bool> ActionButton = CommonUsages.triggerButton;
 
-        [Tooltip("Set the preferred hand for draw/erase button.")]
-        public ControllerHand ActionButtonHand = ControllerHand.Right;
+        //[Tooltip("Set the preferred hand for draw/erase button.")]
+        //public ControllerHand ActionButtonHand = ControllerHand.Right;
 
         [Tooltip("Set the button the user presses to toggle between drawing and erasing modes.")]
         public InputFeatureUsage<bool> ToggleButton = CommonUsages.primaryButton;
 
-        [Tooltip("Set the preferred hand for toggle button.")]
-        public ControllerHand ToggleButtonHand = ControllerHand.Right;
+        //[Tooltip("Set the preferred hand for toggle button.")]
+        //public ControllerHand ToggleButtonHand = ControllerHand.Right;
 
         [Tooltip("Set the preferred drawing hand.")]
         public ControllerHand PenHand = ControllerHand.Right;
+
+        public Vector3 PenTipLocalPosition = new Vector3(0f, -0.01f, -0.02f);
+
+        public Vector3 PenSprayLocalDirection = new Vector3(0f, 0f, 1f);
+
+        public Material StrokeMaterial;
 
         public DateTime StartTime { get; private set; }
 
@@ -49,13 +55,12 @@ namespace StrokeMimicry
         void Awake()
         {
             StartTime = DateTime.Now;
+            InputManager.Awake();
         }
 
         void Update()
         {
             Projection.Update();
-
-            InputManager.HandleToggleInputs();
 
             switch(CurrentInteractionMode)
             {
@@ -66,16 +71,6 @@ namespace StrokeMimicry
                     InputManager.Erase();
                     break;
             }
-        }
-
-        void OnEnable()
-        {
-            InputManager.OnEnable();
-        }
-
-        void OnDisable()
-        {
-            InputManager.OnDisable();
         }
     }
 }

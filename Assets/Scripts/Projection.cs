@@ -101,10 +101,13 @@ namespace StrokeMimicry
 
         public static void Update()
         {
+            if (!IsReady)
+                return;
+
             CurrentDataFrame = new DataFrame(
                 (DateTime.Now - StrokeMimicryManager.Instance.StartTime).TotalMilliseconds,
                 Camera.main.transform.position,
-                PenObject.transform.localToWorldMatrix * PenObject.PenTipPosition,
+                PenObject.transform.TransformPoint(PenObject.PenTipPosition),
                 Camera.main.transform.up,
                 Camera.main.transform.forward,
                 PenObject.transform.up,
@@ -129,13 +132,16 @@ namespace StrokeMimicry
 
         public static void TryCreateNewStroke()
         {
+            if (!IsReady)
+                return;
+
             bool hitSuccess = _Raycast(SprayRay, out _);
 
             if (hitSuccess)
             {
                 GameObject strokeObject = new GameObject("stroke");
                 CurrentStroke = strokeObject.AddComponent<Stroke>();
-                strokeObject.transform.parent = Target.transform;
+                strokeObject.transform.SetParent(Target.transform, false);
                 CurrentStroke.Init(StrokeMimicryManager.Instance.ProjectionMode, Target.TargetTransform.localToWorldMatrix);
             }
         }
@@ -284,7 +290,7 @@ namespace StrokeMimicry
 
             if (CurrentStroke.PointCount > 0)
             {
-                var lastFrame = frames[-1];
+                var lastFrame = frames[frames.Count-1];
                 var lastUsedPenPosition = lastFrame.Frame.PenPosition;
                 lastPointDrawn = lastFrame.Point;
 
@@ -362,11 +368,13 @@ namespace StrokeMimicry
             CurrentHit = hit;
 
             CurrentStroke.TryDrawPoint(hit);
+
+            Debug.Log("Point: " + hit.Point);
         }
 
         public static void UpdateProjectionPointer()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 
             // This logic belongs to the ProjectionPointer class.
             // We should have a single object that handles both the pointer and laser logic.

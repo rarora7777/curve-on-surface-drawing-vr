@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace StrokeMimicry
 {
-    [RequireComponent(typeof(MeshFilter), typeof(MeshCollider))]
+    [RequireComponent(typeof(MeshFilter), typeof(MeshCollider), typeof(MeshRenderer))]
     public class Stroke : MonoBehaviour
     {
         public List<Vector3> Points { get; private set; }
@@ -23,6 +23,7 @@ namespace StrokeMimicry
             ProjMode = mode;
             ModelMatrix = modelMat;
             MeshBuilder = new StrokeMeshBuilder(this);
+            gameObject.GetComponent<MeshRenderer>().material = StrokeMimicryManager.Instance.StrokeMaterial;
         }
 
         public bool TryDrawPoint(HitInfo hitInfo)

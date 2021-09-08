@@ -4,6 +4,7 @@
 /[Bb]uild/
 /[Bb]uildMono/
 /[Bb]uilds/
+/[Ll]ogs
 /Assets/AssetStoreTools*
 
 UnityProject/Assets/AssetBundles/

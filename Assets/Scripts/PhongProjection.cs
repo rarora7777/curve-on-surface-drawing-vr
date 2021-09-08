@@ -138,13 +138,13 @@ namespace StrokeMimicry
             if (StrokeMimicryManager.Instance.LogDebugInfo)
                 totalWatch.Start();
 
-            string tetMeshFile = Path.Combine(Application.streamingAssetsPath, modelName + "_tet.txt");
-            string triMeshFile = Path.Combine(Application.streamingAssetsPath, modelName + "_tri.txt");
-            string outMeshFile = Path.Combine(Application.streamingAssetsPath, modelName + "_out.obj");
+            string tetMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_tet.txt");
+            string triMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_tri.txt");
+            string outMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_out.obj");
 
             string inMeshFile =
                 loadInsideOffsetSurface ?
-                    Path.Combine(Application.streamingAssetsPath, modelName + "_in.obj") :
+                    Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_in.obj") :
                     "";
 
             _stats_totalCallsToBary = 0;
