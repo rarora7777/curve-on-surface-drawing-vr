@@ -1,21 +1,19 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
-using System.Linq;
 
 
 namespace StrokeMimicry
 {
-    public class StrokeMeshBuilder
+    // Low-level stroke mesh operations.
+    public class CurveMeshBuilder
     {
-        private readonly float strokeWidth = 0.0015f;
+        private readonly float strokeWidth;
         public readonly ProjectionMode ProjMode;
         private readonly MeshFilter mf;
         private readonly MeshCollider mc;
-        public readonly Stroke ParentStroke;
+        public readonly ProjectedCurve ParentStroke;
 
-        // Use this for initialization
-        public StrokeMeshBuilder(Stroke parent)
+        public CurveMeshBuilder(ProjectedCurve parent)
         {
             ParentStroke = parent;
             mf = parent.GetComponent<MeshFilter>();
@@ -35,9 +33,7 @@ namespace StrokeMimicry
         }
 
 
-        // ******************************
-        // Functions to manage rendering data (meshes for strokes)
-        // ******************************
+        // Main function to manage rendering data (meshes for curves)
         public void DrawNewStrokeSegment()
         {
             Vector3[] vertices;
@@ -77,14 +73,10 @@ namespace StrokeMimicry
             var previousPoint = ParentStroke.Points[PointCount - 2];
             Vector3 normal = ParentStroke.HitInfoFrames[PointCount - 1].Normal;
 
-            //latestPoint = ParentStroke.transform.TransformPoint(latestPoint);
-            //previousPoint = ParentStroke.transform.TransformPoint(previousPoint);
-            //normal = ParentStroke.transform.TransformDirection(normal);
+            
+            Vector3 binormal = Vector3.Cross(latestPoint - previousPoint, normal).normalized;
 
-            Vector3 binormal = Vector3.Cross(
-                latestPoint - previousPoint,
-                normal).normalized;
-
+            // radius of the stroke cross-section
             float r = strokeWidth / 2.0f;
 
             // Create the vertex ring around the first point

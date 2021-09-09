@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using g3;
 using System.Linq;
@@ -48,9 +47,9 @@ namespace StrokeMimicry
             return new Quaternion(-q.x, q.y, q.z, -q.w);
         }
 
-        public class PointSet : g3.IPointSet
+        public class PointSet : IPointSet
         {
-            private Vector3d[] vertices;
+            private readonly Vector3d[] vertices;
 
             public PointSet(Vector3d[] vertIn)
             {
@@ -92,7 +91,7 @@ namespace StrokeMimicry
 
             public bool IsVertex(int vID)
             {
-                return vID < vertices.Length ? true : false;
+                return vID < vertices.Length;
             }
 
             // iterators allow us to work with gaps in index space

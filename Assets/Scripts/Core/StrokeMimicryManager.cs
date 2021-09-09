@@ -13,8 +13,8 @@ namespace StrokeMimicry
         [Range(3, 10)]
         public int MeshVerticesPerPoint = 6;
 
-        [Tooltip("Thickness of the stroke mesh cross-section (in metres).")]
-        public float MeshThickness = 0.0015f;
+        [Tooltip("Thickness of the stroke mesh cross-section (in millimetres).")]
+        public float MeshThickness = 1.5f;
 
         public bool LogDebugInfo = false;
 

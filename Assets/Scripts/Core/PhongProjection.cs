@@ -78,6 +78,8 @@ namespace StrokeMimicry
         //static ProfilerMarker _ioMarker = new ProfilerMarker("AC.IO");
         const float negEps = -0.00001f;
 
+
+        // interface functions to C++ DLL
         private IntPtr phong = IntPtr.Zero;
 
         [DllImport("Phong")]
@@ -98,10 +100,9 @@ namespace StrokeMimicry
         [DllImport("Phong")]
         private static extern double getInitTime(IntPtr phong);
 
-        double[] vertices;
-        uint[] triangles;
-
-        int triID = 0;
+        // mesh data for C++ functions
+        readonly double[] vertices;
+        readonly uint[] triangles;
 
         // tet mesh
         VectorX[] TV;
@@ -116,35 +117,33 @@ namespace StrokeMimicry
         Tri[] FF;
         const int dim = 8;
 
-        private string modelName;
-        private bool loadInsideOffsetSurface;
-
-        DMeshAABBTree3 outMeshTree = null, inMeshTree = null;
+        
+        readonly DMeshAABBTree3 outMeshTree = null;
+        readonly DMeshAABBTree3 inMeshTree = null;
         PointAABBTree3 tetCenterTree = null;
 
         private int oldFid = 0;
 
-        DMesh3 inMesh = null, outMesh = null;
+        readonly DMesh3 inMesh = null;
+        readonly DMesh3 outMesh = null;
 
         static int _stats_totalCallsToBary = 0;
         static int _stats_nearestNeighbourBary = 0, _stats_oneRingBary = 0, _stats_bruteForceBary = 0;
 
-        public PhongProjection(string name, bool loadInsideSurface)
+        public PhongProjection(string name, bool loadInsideOffsetSurface)
         {
-            modelName = name;
-            loadInsideOffsetSurface = loadInsideSurface;
             Stopwatch totalWatch = new Stopwatch();
 
             if (StrokeMimicryManager.Instance.LogDebugInfo)
                 totalWatch.Start();
 
-            string tetMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_tet.txt");
-            string triMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_tri.txt");
-            string outMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_out.obj");
+            string tetMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_tet.txt");
+            string triMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_tri.txt");
+            string outMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_out.obj");
 
             string inMeshFile =
                 loadInsideOffsetSurface ?
-                    Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, modelName + "_in.obj") :
+                    Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_in.obj") :
                     "";
 
             _stats_totalCallsToBary = 0;
@@ -270,26 +269,6 @@ namespace StrokeMimicry
                 Debug.Log("Phong Object creation time: " + phongCreateWatch.Elapsed.TotalSeconds +
                     "( of which C++ time: " + getInitTime(phong) + ")");
             }
-
-            //Vector3 dbgPt, dbgProjPt;
-            //dbgPt = new Vector3(0.06455f, 0.58133f, 0.18225f);
-            //Project(dbgPt, out dbgProjPt, out int dbgTri, out float[] dbgBary, true);
-            //Project(dbgPt, out dbgProjPt, out dbgTri, out dbgBary, true, true);
-        }
-
-        public Vector3 GetTriangleNormal(int triId)
-        {
-            var v1 = FV3D[FF[triID].idx[0]];
-            var v2 = FV3D[FF[triID].idx[1]];
-            var v3 = FV3D[FF[triID].idx[2]];
-
-            return Vector3.Cross(v3 - v1, v2 - v1).normalized;
-        }
-
-        void WarningHandler(string message, object other_data)
-        {
-            Debug.Log(message);
-            Debug.Log(other_data.ToString());
         }
 
         private void OnDestroy()
@@ -502,7 +481,7 @@ namespace StrokeMimicry
 
                 TMat[count] = TMat[count].inverse;
                 Debug.Assert(tetVolume(count) > 0);
-                count = count + 1;
+                count++;
             }
 
             tetCenterTree = new PointAABBTree3(new StrokeMimicryUtils.PointSet(tetCenters));
@@ -570,6 +549,7 @@ namespace StrokeMimicry
             return true;
         }
 
+        // Volume of a 3D tetrahedron
         double tetVolume(int tetIdx)
         {
             var v1 = TV3D[TT[tetIdx].idx[0]];

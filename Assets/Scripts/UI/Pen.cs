@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace StrokeMimicry
 {
+    // Pen is a UI class handling the display of the projection pointer, projection laser, and the eraser.
     public class Pen : MonoBehaviour
     {
         [Tooltip("Position of the pen tip in the local frame of the controller.")]
@@ -39,6 +40,7 @@ namespace StrokeMimicry
 
         void Start()
         {
+            // Create the pointer: a sphere that marks the current projected point on the target mesh
             float strokeWidth = StrokeMimicryManager.Instance.MeshThickness;
             GameObject pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             pointer.name = "ProjectionPointer";
@@ -52,7 +54,8 @@ namespace StrokeMimicry
                 pointerRelativeThickness * strokeWidth);
             Destroy(pointer.GetComponent<MeshCollider>());
 
-
+            // Create the laser: a thin cylinder that goes from the pen tip to the current projected point
+            // If no projected point exists, the cylinder extends out to infinity in the spray direction
             GameObject laser = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             laser.name = "ProjectionLaser";
             laserRenderer = laser.GetComponent<MeshRenderer>();
@@ -61,8 +64,9 @@ namespace StrokeMimicry
             laser.transform.localScale = new Vector3(laserThickness, 0.5f*laserLength, laserThickness);
             Destroy(laser.GetComponent<MeshCollider>());
 
+            // Create the eraser object: a sphere with a trigger collider. The curve erasure logic is handled by the `ProjectedCurve` class.
             GameObject eraser = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            eraser.name = "StrokeEraser";
+            eraser.name = "CurveEraser";
             eraserRenderer = eraser.GetComponent<MeshRenderer>();
             eraserRenderer.material = StrokeMimicryManager.Instance.EraserMaterial;
             eraserCollider = eraser.GetComponent<SphereCollider>();
@@ -73,6 +77,7 @@ namespace StrokeMimicry
             eraser.transform.localPosition = PenTipPosition;
             eraser.transform.localScale = new Vector3(eraserThickness, eraserThickness, eraserThickness);
 
+            // Show the drawing or erasing UI based on the current interaction mode
             if (StrokeMimicryManager.Instance.CurrentInteractionMode == InteractionMode.Drawing)
             {
                 if (ShowProjectionLaser)
@@ -86,14 +91,14 @@ namespace StrokeMimicry
                 eraserRenderer.enabled = true;
                 eraserCollider.enabled = true;
             }
+
+            // Add the marker script `StrokeMimicryUI` so that these objects can be deleted when needed
+            pointer.AddComponent<StrokeMimicryUI>();
+            laser.AddComponent<StrokeMimicryUI>();
+            eraser.AddComponent<StrokeMimicryUI>();
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
+        
         public void UpdatePointerAndLaser(Ray ray, HitInfo hit, Transform targetTransform)
         {
             if (hit.Success)
@@ -146,6 +151,15 @@ namespace StrokeMimicry
                 eraserRenderer.enabled = true;
                 eraserCollider.enabled = true;
             }
+        }
+
+        // Remove the objects created by this script
+        public void OnDestroy()
+        {
+            var objs = gameObject.GetComponentsInChildren<StrokeMimicryUI>();
+
+            foreach (var obj in objs)
+                Destroy(obj.gameObject);
         }
     }
 
