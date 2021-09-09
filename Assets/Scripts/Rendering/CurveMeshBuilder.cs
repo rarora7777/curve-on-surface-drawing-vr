@@ -85,7 +85,7 @@ namespace StrokeMimicry
                 for (int i = 0; i < StrokeMimicryManager.Instance.MeshVerticesPerPoint; ++i)
                 {
                     vertices[i] =
-                    previousPoint + 1e-4f * normal +
+                    previousPoint + 1e-3f * normal +
                     (float)Mathf.Cos(2 * Mathf.PI * (i) / StrokeMimicryManager.Instance.MeshVerticesPerPoint) * r * binormal +
                     (float)Mathf.Sin(2 * Mathf.PI * (i) / StrokeMimicryManager.Instance.MeshVerticesPerPoint) * r * normal;
                     strokeMeshNormals[i] = (vertices[i] - previousPoint).normalized;
@@ -97,7 +97,7 @@ namespace StrokeMimicry
             for (int i = 0; i < StrokeMimicryManager.Instance.MeshVerticesPerPoint; ++i)
             {
                 vertices[oldVertexLength + i] =
-                latestPoint + 1e-4f * normal +
+                latestPoint + 1e-3f * normal +
                 (float)Mathf.Cos(2 * Mathf.PI * (i) / StrokeMimicryManager.Instance.MeshVerticesPerPoint) * r * binormal +
                 (float)Mathf.Sin(2 * Mathf.PI * (i) / StrokeMimicryManager.Instance.MeshVerticesPerPoint) * r * normal;
                 strokeMeshNormals[oldVertexLength + i] = (vertices[oldVertexLength + i] - latestPoint).normalized;

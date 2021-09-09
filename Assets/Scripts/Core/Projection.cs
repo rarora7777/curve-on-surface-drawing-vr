@@ -33,7 +33,7 @@ namespace StrokeMimicry
                 if (!IsReady)
                     return false;
 
-                return !(Target.Phong is null);
+                return !(Target.Phong.IsNull);
             }
         }
 
@@ -45,31 +45,42 @@ namespace StrokeMimicry
 
             set
             {
-                _target = value;
-                string surfMeshFile = System.IO.Path.Combine(
-                    StrokeMimicryManager.Instance.PhongFilesPath,
-                    _target.Name + ".obj");
-
-                StandardMeshReader surfMeshReader = new StandardMeshReader();
-                surfMeshReader.MeshBuilder = new DMesh3Builder();
-                var surfMeshReadResult = surfMeshReader.Read(surfMeshFile, new ReadOptions());
-                Debug.Assert(surfMeshReadResult.code == IOCode.Ok);
-                SurfMesh = ((DMesh3Builder)surfMeshReader.MeshBuilder).Meshes[0];
-
-                foreach (var vidx in SurfMesh.VertexIndices())
+                try
                 {
-                    SurfMesh.SetVertex(vidx, StrokeMimicryUtils.ChangeHandedness((Vector3)SurfMesh.GetVertex(vidx)));
-                    SurfMesh.SetVertexNormal(vidx, StrokeMimicryUtils.ChangeHandedness(SurfMesh.GetVertexNormal(vidx)));
+                    _target = value;
+                    string surfMeshFile = System.IO.Path.Combine(
+                        StrokeMimicryManager.Instance.PhongFilesPath,
+                        _target.Name + ".obj");
+
+                    if (!System.IO.File.Exists(surfMeshFile))
+                        Debug.LogError("Unable to find file " + surfMeshFile + ". This file is required for all projection functions. Perhaps you forgot to copy this file to " + StrokeMimicryManager.Instance.PhongFilesPath + " or the target model name is not set?");
+
+
+                    StandardMeshReader surfMeshReader = new StandardMeshReader();
+                    surfMeshReader.MeshBuilder = new DMesh3Builder();
+                    var surfMeshReadResult = surfMeshReader.Read(surfMeshFile, new ReadOptions());
+                    Debug.Assert(surfMeshReadResult.code == IOCode.Ok, "Unable to read target surface mesh from " + surfMeshFile);
+                    SurfMesh = ((DMesh3Builder)surfMeshReader.MeshBuilder).Meshes[0];
+
+                    foreach (var vidx in SurfMesh.VertexIndices())
+                    {
+                        SurfMesh.SetVertex(vidx, StrokeMimicryUtils.ChangeHandedness((Vector3)SurfMesh.GetVertex(vidx)));
+                        SurfMesh.SetVertexNormal(vidx, StrokeMimicryUtils.ChangeHandedness(SurfMesh.GetVertexNormal(vidx)));
+                    }
+
+                    SurfMeshTree = new DMeshAABBTree3(SurfMesh, true);
+                    Debug.Assert(SurfMesh.IsClosed(), "Target surface mesh needs to be closed!");
+                    //SurfMeshTree.FastWindingNumber(Vector3d.Zero);
+
+                    if (Target.Phong is null)
+                    {
+                        Debug.LogWarning("Phong projection unavailable. Closest point queries will use vanilla version.");
+                    }
                 }
-
-                SurfMeshTree = new DMeshAABBTree3(SurfMesh, true);
-                Debug.Assert(SurfMesh.IsClosed());
-                Debug.Assert(SurfMesh.IsCompact);
-                SurfMeshTree.FastWindingNumber(Vector3d.Zero);
-
-                if (Target.Phong is null)
+                catch(Exception e)
                 {
-                    Debug.LogWarning("Phong projection unavailable. Closest point queries will use vanilla version.");
+                    Debug.LogError(e.Message);
+                    _target = null;
                 }
             }
         }
@@ -79,11 +90,7 @@ namespace StrokeMimicry
         public static Pen PenObject
         {
             get => _penObject;
-
-            set
-            {
-                _penObject = value;
-            }
+            set => _penObject = value;
         }
 
         // This is non-null if a curve is being currentl drawn.
@@ -91,11 +98,7 @@ namespace StrokeMimicry
         public static ProjectedCurve CurrentCurve
         {
             get => _currentCurve;
-
-            set
-            {
-                _currentCurve = value;
-            }
+            set => _currentCurve = value;
         }
 
         // Unity's mesh data structures are not suited for gemoetry processing, so we use Ryan Schmidt's geometry3Sharp library.
@@ -158,7 +161,7 @@ namespace StrokeMimicry
             
             if (CurrentHit.Success)
             {
-                GameObject strokeObject = new GameObject("stroke");
+                GameObject strokeObject = new GameObject("Curve" + StrokeMimicryManager.Instance.NumCurve);
                 CurrentCurve = strokeObject.AddComponent<ProjectedCurve>();
                 strokeObject.transform.SetParent(Target.transform, false);
                 CurrentCurve.Init(StrokeMimicryManager.Instance.ProjectionMode, Target.TargetTransform.localToWorldMatrix);
@@ -203,6 +206,9 @@ namespace StrokeMimicry
 
                 // Δp_i = p_i - p_{i-1}
                 delta = penTipGlobalPosition - lastUsedPenPosition;
+
+                if (delta.magnitude < 1e-3f*StrokeMimicryManager.Instance.Epsilon)
+                    return;
             }
 
             ProjectionMode projectionMode = StrokeMimicryManager.Instance.ProjectionMode;

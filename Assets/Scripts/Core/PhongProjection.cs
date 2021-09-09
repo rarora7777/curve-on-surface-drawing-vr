@@ -130,144 +130,155 @@ namespace StrokeMimicry
         static int _stats_totalCallsToBary = 0;
         static int _stats_nearestNeighbourBary = 0, _stats_oneRingBary = 0, _stats_bruteForceBary = 0;
 
+        public readonly bool IsNull;
+
         public PhongProjection(string name, bool loadInsideOffsetSurface)
         {
-            Stopwatch totalWatch = new Stopwatch();
-
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-                totalWatch.Start();
-
-            string tetMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_tet.txt");
-            string triMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_tri.txt");
-            string outMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_out.obj");
-
-            string inMeshFile =
-                loadInsideOffsetSurface ?
-                    Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_in.obj") :
-                    "";
-
-            _stats_totalCallsToBary = 0;
-            _stats_nearestNeighbourBary = 0;
-            _stats_oneRingBary = 0;
-            _stats_bruteForceBary = 0;
-
-            if (phong != IntPtr.Zero)
+            try
             {
-                deletePhongObject(phong);
-                inMesh = null;
-                outMesh = null;
-                inMeshTree = outMeshTree = null;
-                tetCenterTree = null;
+                Stopwatch totalWatch = new Stopwatch();
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                    totalWatch.Start();
+
+                string tetMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_tet.txt");
+                string triMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_tri.txt");
+                string outMeshFile = Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_out.obj");
+
+                string inMeshFile =
+                    loadInsideOffsetSurface ?
+                        Path.Combine(StrokeMimicryManager.Instance.PhongFilesPath, name + "_in.obj") :
+                        "";
+
+                _stats_totalCallsToBary = 0;
+                _stats_nearestNeighbourBary = 0;
+                _stats_oneRingBary = 0;
+                _stats_bruteForceBary = 0;
+
+                if (phong != IntPtr.Zero)
+                {
+                    deletePhongObject(phong);
+                    inMesh = null;
+                    outMesh = null;
+                    inMeshTree = outMeshTree = null;
+                    tetCenterTree = null;
+                }
+
+                _triTetLoadMarker.Begin();
+                Stopwatch triTetMeshWatch = new Stopwatch();
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                {
+                    triTetMeshWatch.Start();
+                    Debug.Log("Loading tet mesh...");
+                }
+
+                bool tetRes = LoadTetMesh(tetMeshFile);
+                Debug.Assert(tetRes, "Unable to load tet mesh from " + tetMeshFile);
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                {
+                    Debug.Log("Loading tri mesh...");
+                }
+
+                bool triRes = LoadTriMesh(triMeshFile);
+                Debug.Assert(triRes, "Unable to load triangle mesh from file " + triMeshFile);
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                {
+                    triTetMeshWatch.Stop();
+                }
+
+                _triTetLoadMarker.End();
+
+                _offsetLoadMarker.Begin();
+                Stopwatch inOffsetWatch = new Stopwatch();
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                {
+                    Debug.Log("Loading offset surfaces...");
+                    inOffsetWatch.Start();
+                }
+
+                if (loadInsideOffsetSurface)
+                {
+                    StandardMeshReader inMeshReader = new StandardMeshReader();
+                    inMeshReader.MeshBuilder = new DMesh3Builder();
+                    var inMeshReadResult = inMeshReader.Read(inMeshFile, new ReadOptions());
+                    Debug.Assert(inMeshReadResult.code == IOCode.Ok, "Unable to read inner offset surface from " + inMeshFile);
+                    inMesh = ((g3.DMesh3Builder)inMeshReader.MeshBuilder).Meshes[0];
+                    inMeshTree = new DMeshAABBTree3(inMesh, true);
+                    inMeshTree.FastWindingNumber(Vector3d.Zero);
+                }
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                    inOffsetWatch.Stop();
+
+                Stopwatch outOffsetWatch = new Stopwatch();
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                    outOffsetWatch.Start();
+
+                StandardMeshReader outMeshReader = new StandardMeshReader();
+                outMeshReader.MeshBuilder = new DMesh3Builder();
+                var outMeshReadResult = outMeshReader.Read(outMeshFile, new ReadOptions());
+                Debug.Assert(outMeshReadResult.code == IOCode.Ok, "Unable to read outer offset surface from " + outMeshFile);
+                outMesh = ((g3.DMesh3Builder)outMeshReader.MeshBuilder).Meshes[0];
+                outMeshTree = new DMeshAABBTree3(outMesh, true);
+                outMeshTree.FastWindingNumber(Vector3d.Zero);
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                    outOffsetWatch.Stop();
+                _offsetLoadMarker.End();
+
+                Debug.Assert(outMesh != null, "Outer offset surface mesh is empty!");
+
+
+
+                _phongCreateMarker.Begin();
+                vertices = new double[FV.Length * dim];
+                triangles = new uint[FF.Length * 3];
+
+                for (int i = 0; i < FV.Length; ++i)
+                    for (int j = 0; j < dim; ++j)
+                        vertices[j * FV.Length + i] = (double)FV[i].data[j];
+
+                for (int i = 0; i < FF.Length; ++i)
+                    for (int j = 0; j < 3; ++j)
+                        triangles[j * FF.Length + i] = FF[i].idx[j];
+
+                Stopwatch phongCreateWatch = new Stopwatch();
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                {
+                    Debug.Log("Creating phong object...");
+                    phongCreateWatch.Start();
+                }
+
+                phong = createPhongObject(
+                    vertices, (int)FV.Length, dim,
+                    triangles, (int)FF.Length);
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                {
+                    phongCreateWatch.Stop();
+                }
+                _phongCreateMarker.End();
+
+                if (StrokeMimicryManager.Instance.LogDebugInfo)
+                {
+                    totalWatch.Stop();
+
+                    Debug.Log("Total initialization time: " + totalWatch.Elapsed.TotalSeconds);
+                    Debug.Log("Tri and tet mesh load time: " + triTetMeshWatch.Elapsed.TotalSeconds);
+                    Debug.Log("in-offset surface load time: " + inOffsetWatch.Elapsed.TotalSeconds);
+                    Debug.Log("out-offset surface load time: " + outOffsetWatch.Elapsed.TotalSeconds);
+                    Debug.Log("Phong Object creation time: " + phongCreateWatch.Elapsed.TotalSeconds +
+                        "( of which C++ time: " + getInitTime(phong) + ")");
+                }
+                IsNull = false;
             }
-
-            _triTetLoadMarker.Begin();
-            Stopwatch triTetMeshWatch = new Stopwatch();
-            
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
+            catch (Exception e)
             {
-                triTetMeshWatch.Start();
-                Debug.Log("Loading tet mesh...");
-            }
-
-            bool tetRes = LoadTetMesh(tetMeshFile);
-            Debug.Assert(tetRes);
-            
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-            {
-                Debug.Log("Loading tri mesh...");
-            }
-            
-            bool triRes = LoadTriMesh(triMeshFile);
-            Debug.Assert(triRes);
-
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-            {
-                triTetMeshWatch.Stop();
-            }
-
-            _triTetLoadMarker.End();
-
-            _offsetLoadMarker.Begin();
-            Stopwatch inOffsetWatch = new Stopwatch();
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-            {
-                Debug.Log("Loading offset surfaces...");
-                inOffsetWatch.Start();
-            }
-
-            if (loadInsideOffsetSurface)
-            {
-                StandardMeshReader inMeshReader = new StandardMeshReader();
-                inMeshReader.MeshBuilder = new DMesh3Builder();
-                var inMeshReadResult = inMeshReader.Read(inMeshFile, new ReadOptions());
-                Debug.Assert(inMeshReadResult.code == IOCode.Ok);
-                inMesh = ((g3.DMesh3Builder)inMeshReader.MeshBuilder).Meshes[0];
-                inMeshTree = new DMeshAABBTree3(inMesh, true);
-                inMeshTree.FastWindingNumber(Vector3d.Zero);
-            }
-
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-                inOffsetWatch.Stop();
-
-            Stopwatch outOffsetWatch = new Stopwatch();
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-                outOffsetWatch.Start();
-
-            StandardMeshReader outMeshReader = new StandardMeshReader();
-            outMeshReader.MeshBuilder = new DMesh3Builder();
-            var outMeshReadResult = outMeshReader.Read(outMeshFile, new ReadOptions());
-            Debug.Assert(outMeshReadResult.code == IOCode.Ok);
-            outMesh = ((g3.DMesh3Builder)outMeshReader.MeshBuilder).Meshes[0];
-            outMeshTree = new DMeshAABBTree3(outMesh, true);
-            outMeshTree.FastWindingNumber(Vector3d.Zero);
-
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-                outOffsetWatch.Stop();
-            _offsetLoadMarker.End();
-
-            Debug.Assert(outMesh != null, "Unable to read the outer offset surface!");
-
-
-
-            _phongCreateMarker.Begin();
-            vertices = new double[FV.Length * dim];
-            triangles = new uint[FF.Length * 3];
-
-            for (int i = 0; i < FV.Length; ++i)
-                for (int j = 0; j < dim; ++j)
-                    vertices[j * FV.Length + i] = (double)FV[i].data[j];
-
-            for (int i = 0; i < FF.Length; ++i)
-                for (int j = 0; j < 3; ++j)
-                    triangles[j * FF.Length + i] = FF[i].idx[j];
-
-            Stopwatch phongCreateWatch = new Stopwatch();
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-            {
-                Debug.Log("Creating phong object...");
-                phongCreateWatch.Start();
-            }
-
-            phong = createPhongObject(
-                vertices, (int)FV.Length, dim,
-                triangles, (int)FF.Length);
-
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-            {
-                phongCreateWatch.Stop();
-            }
-            _phongCreateMarker.End();
-
-            if (StrokeMimicryManager.Instance.LogDebugInfo)
-            {
-                totalWatch.Stop();
-
-                Debug.Log("Total initialization time: " + totalWatch.Elapsed.TotalSeconds);
-                Debug.Log("Tri and tet mesh load time: " + triTetMeshWatch.Elapsed.TotalSeconds);
-                Debug.Log("in-offset surface load time: " + inOffsetWatch.Elapsed.TotalSeconds);
-                Debug.Log("out-offset surface load time: " + outOffsetWatch.Elapsed.TotalSeconds);
-                Debug.Log("Phong Object creation time: " + phongCreateWatch.Elapsed.TotalSeconds +
-                    "( of which C++ time: " + getInitTime(phong) + ")");
+                Debug.LogError(e.Message);
+                IsNull = true;
             }
         }
 
@@ -402,6 +413,9 @@ namespace StrokeMimicry
          */
         bool LoadTetMesh(string filename)
         {
+            if (!File.Exists(filename))
+                return false;
+
             NumberFormatInfo nfi = new CultureInfo("en-US", false).NumberFormat;
 
             var data = File.ReadAllLines(filename);
@@ -494,6 +508,9 @@ namespace StrokeMimicry
 
         bool LoadTriMesh(string filename)
         {
+            if (!File.Exists(filename))
+                return false;
+
             NumberFormatInfo nfi = new CultureInfo("en-US", false).NumberFormat;
 
             var data = File.ReadAllLines(filename);

@@ -56,10 +56,18 @@ namespace StrokeMimicry
         [Tooltip("Material for eraser.")]
         public Material EraserMaterial;
 
+        [Tooltip("Small threshold to ignore controller tracking noise (in mm). Controller movements of magnitude below epsilon are ignored.")]
+        public float Epsilon = 0.1f;
+
         public DateTime StartTime { get; private set; }
 
         public InteractionMode CurrentInteractionMode { get; set; } = InteractionMode.Drawing;
 
+        private int _numCurve = 0;
+        public int NumCurve
+        {
+            get => _numCurve++;
+        }
 
         protected StrokeMimicryManager() { }
 
