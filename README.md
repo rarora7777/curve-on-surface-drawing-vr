@@ -30,6 +30,17 @@ Then add this project to Unity and open it. The included example scene `./Assets
 - Only one `StrokeMimicryTarget` component should be active at a time. If multiple target objects (multiple objects with `StrokeMimicryTarget` components) are present and active before running the game, one will be arbitrarily selected. If multiple target objects become active only during gameplay, then the component activated last is selected.
 - The brains of the code are in `./Assets/Scripts/Core/Projection.cs`. Other files in `Core` are required helper classes. Files outside of `Core` are only required for the demo, and should probably be replaced in any real-world application.
 
+### Controls
+Two controls are defined:
+- **Action**. Hold the action button to draw or erase curves.
+- **Toggle**. Press the toggle button to switch between drawing and erasing interactions.
+
+**Default Control Mappings**
+| Control       | Oculus Touch  | Valve Knuckles | Vive Controller |
+| ------------- | ------------- | -------------- | --------------- |
+| Action        | Main trigger  | Trigger        | Trigger         |
+| Toggle        | A/X           | A              | Menu            |
+
 ## Pre-processing code
 Pre-processing code (MATLAB) and C++ source for the Phong projection DLL are available at https://github.com/rarora7777/smooth-closest-point. 
 
