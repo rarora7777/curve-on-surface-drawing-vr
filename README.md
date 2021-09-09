@@ -46,3 +46,23 @@ Pre-processing code (MATLAB) and C++ source for the Phong projection DLL are ava
 
 ## Study data
 Data will be made available soon (by Sep 2021).
+
+## Citing
+
+If this code is useful in a research project, please cite the following paper:
+```
+@article{arora2021midair,
+	title={Mid-Air Drawing of Curves on {3D} Surfaces in Virtual Reality}, 
+	author={Rahul Arora and Karan Singh},
+	journal={ACM Trans. Graph.},
+	volume={40},
+	number={3},
+	numpages={17},
+	year={2021},
+	month = jul,
+	url = {http://doi.org/10.1145/3459090},
+	doi = {10.1145/1122445.1122456},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA}
+}
+```
