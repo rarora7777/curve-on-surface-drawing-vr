@@ -1,7 +1,7 @@
 # Mid-Air Drawing of Curves on Surfaces in Virtual Reality
 Source code and study data for the TOG 2021 paper: Mid-Air Drawing of Curves on Surfaces in Virtual Reality.
 
-For a barebones demo of our _Mimicry_ technique, try out the pre-built demo: https://github.com/rarora7777/curve-on-surface-drawing-vr/releases/tag/v0.1.
+For a barebones demo of our _Mimicry_ technique, try out the pre-built demo: https://github.com/rarora7777/curve-on-surface-drawing-vr/releases/tag/v0.1. The demo is limited, so downloading the building the code yourself, which allows for a much greater testing freedom, is highly recommended.
 
 To try out the user study for yourself, download the study executable: https://github.com/rarora7777/curve-on-surface-drawing-vr/releases/tag/StudyExecutable.
 
@@ -9,7 +9,7 @@ To download the raw data from our user study and code to read and analyze the da
 
 For the MATLAB pre-processing code required for Phong projection, and the C++ code for building the Phong projection DLL: https://github.com/rarora7777/smooth-closest-point.
 
-To use the C#/Unity source code for using the projection techniques described in the paper, read on.
+To use and build on the C#/Unity source code for the projection techniques described in the paper, read on.
 
 
 ## Getting started
