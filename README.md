@@ -45,7 +45,7 @@ Two controls are defined:
 Pre-processing code (MATLAB) and C++ source for the Phong projection DLL are available at https://github.com/rarora7777/smooth-closest-point. 
 
 ## Study data
-Data will be made available soon (by Sep 2021).
+Data can be downloaded [here](https://drive.google.com/file/d/16HLfToeoSTzmcgEjBTdV5HArgyyqNPwl/view?usp=sharing) and the code to read and analyze the data is provided at https://github.com/rarora7777/curve-on-surface-vr-data.
 
 ## Citing
 
