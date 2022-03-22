@@ -65,7 +65,7 @@ If this code is useful in a research project, please cite the following paper:
 	year={2021},
 	month = jul,
 	url = {http://doi.org/10.1145/3459090},
-	doi = {10.1145/1122445.1122456},
+	doi = {10.1145/3459090},
 	publisher = {Association for Computing Machinery},
 	address = {New York, NY, USA}
 }
